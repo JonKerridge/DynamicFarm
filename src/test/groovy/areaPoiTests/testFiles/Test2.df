@@ -1,0 +1,4 @@
+version 1.0.0
+data -f ./data/areas25000.loc
+work -m distance -p double!3.0 -f ./data/pois5000.loc
+result -p String!./data/Test2Results

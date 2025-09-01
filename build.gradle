@@ -1,0 +1,79 @@
+plugins {
+  id 'groovy'
+  id 'java-library'
+  id 'maven-publish'
+}
+
+group = 'jonkerridge'
+version = '1.0.0'
+
+// The build file assumes the existence of a gradle properties file containing the
+// user's name and key in a file called "user.home"/.github/gradle.properties
+String userDir = System.getProperty("user.home")
+String propertyFileName = "$userDir/.github/gradle.properties"
+File propsFile = new File(propertyFileName)
+Properties props = new Properties()
+props.load(propsFile.newDataInputStream())
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+  maven { // to download the jonkerridge.groovy_jcsp library
+    name = "GitHubPackages"
+    url = "https://maven.pkg.github.com/JonKerridge/groovyJCSP"
+    credentials {
+      username = props.getProperty("gpr.user")
+      password = props.getProperty("gpr.key")
+    }
+  }
+  maven { // to download the cspforjava.jcsp library
+    name = "GitHubPackages"
+    url = "https://maven.pkg.github.com/CSPforJAVA/jcsp"
+    credentials {
+      username = props.getProperty("gpr.user")
+      password = props.getProperty("gpr.key")
+    }
+  }
+}
+
+dependencies {
+  implementation 'org.codehaus.groovy:groovy-all:3.0.25'
+  implementation 'cspforjava:jcsp:1.1.9'
+  implementation 'jonkerridge:groovy_jcsp:1.1.10'
+  implementation 'com.github.oshi:oshi-core-java11:6.8.2'
+  testImplementation platform('org.junit:junit-bom:5.10.0')
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+  useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar) {
+  from sourceSets.main.allSource
+  archiveClassifier.set("sources")
+}
+
+artifacts {
+  archives sourcesJar
+}
+
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = "https://maven.pkg.github.com/JonKerridge/DynamicFramework"
+      credentials {
+        username = props.getProperty("gpr.user")
+        password = props.getProperty("gpr.key")
+      }
+    }
+  }
+  publications {
+    clusterFramework(MavenPublication) {
+      artifactId = 'dynamicFarm'
+      from components.java
+      artifact sourcesJar
+    }
+  }
+}
