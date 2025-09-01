@@ -62,7 +62,7 @@ publishing {
   repositories {
     maven {
       name = "GitHubPackages"
-      url = "https://maven.pkg.github.com/JonKerridge/DynamicFramework"
+      url = "https://maven.pkg.github.com/JonKerridge/DynamicFarm"
       credentials {
         username = props.getProperty("gpr.user")
         password = props.getProperty("gpr.key")
