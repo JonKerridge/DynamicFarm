@@ -1,13 +1,13 @@
 package frameworkTests
 
-import dynamicFarm.records.CollectInterface
+import dynamicFarm.records.ResultInterface
 
-class CollectObject implements CollectInterface <EmitObject>{
+class ResultObject implements ResultInterface <DataObject>{
 
   int sum, count
   PrintWriter printWriter
 
-  CollectObject(List p){
+  ResultObject(List p){
     String fileName = p[0]
     String path = "./data/${fileName}.txt"
     printWriter = new PrintWriter(path)
@@ -16,7 +16,7 @@ class CollectObject implements CollectInterface <EmitObject>{
   }
 
   @Override
-  void collate(EmitObject data, List params) {
+  void collate(DataObject data, List params) {
 //    println "\t\t\t\tCollected $data"
     count++
     sum = sum + data.value

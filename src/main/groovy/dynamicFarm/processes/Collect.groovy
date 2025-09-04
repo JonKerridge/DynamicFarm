@@ -1,7 +1,7 @@
 package dynamicFarm.processes
 
-import dynamicFarm.records.CollectInterface
-import dynamicFarm.records.EmitInterface
+import dynamicFarm.records.ResultInterface
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.Terminator
 import jcsp.lang.CSProcess
 import jcsp.lang.ChannelInput
@@ -48,11 +48,11 @@ class Collect implements CSProcess{
       }
       else { // process incoming data object
 //        println "Collect: has read $object "
-        (collectInstance as CollectInterface).collate((object as EmitInterface), collectParameterValues)
+        (collectInstance as ResultInterface).collate((object as DataInterface), collectParameterValues)
       }
     } // running
     //call the finalise method if it exists and close the toSW stream
-    (collectInstance as CollectInterface).finalise(finaliseParameterValues)
+    (collectInstance as ResultInterface).finalise(finaliseParameterValues)
     // send terminator to FarmManager
     toFM.write((new Terminator(nodeIP: "STOP")))
 //    println "Collect has terminated"

@@ -1,6 +1,7 @@
 package dynamicFarm.processes
 
-import dynamicFarm.records.EmitInterface
+
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.RequestWork
 import dynamicFarm.records.Terminator
 import groovy_jcsp.ALT
@@ -46,7 +47,7 @@ class ReadBuffer implements CSProcess{
           def object = objectInput.read()
           if (!(object instanceof Terminator)) {
 //            println "RB[$nodeIP]: has read $object"
-            buffer[writeTo] = object as EmitInterface
+            buffer[writeTo] = object as DataInterface
 //            println "RB[$nodeIP]: read ${buffer[writeTo]} into buffer[$writeTo]"
             writeTo = (writeTo + 1) % nInternals
             entries = entries + 1

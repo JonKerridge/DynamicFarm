@@ -29,7 +29,7 @@ class PoILocales implements WorkDataInterface<Location> {
  * in filterValues to ignore any work data items that do not satisfy the
  * filter.
  * The filterValue(s) will be obtained from the object implementing the
- * EmitInterface using the getFilterValues method.
+ * DataInterface using the getFilterValues method.
  * If the work data does not need filtering then filterValues should be null.
  *
  * @param index the subscript in the Work Data, from where the search will start

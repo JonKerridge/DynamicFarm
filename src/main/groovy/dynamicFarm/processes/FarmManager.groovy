@@ -45,14 +45,14 @@ class FarmManager implements CSProcess{
           InitialMessage startMessage = fromNodes.read ( ) as InitialMessage
           String nodeIP = startMessage.nodeIP
           String nodeVersion = startMessage.versionTag
-          if (verbose) println "FarmManager: NodeRun $nodeIP has joined the farm initially active = ${nodeAddressMap.size()}"
+          if (verbose) println "FarmManager: WorkNode $nodeIP has joined the farm initially active = ${nodeAddressMap.size()}"
           TCPIPNodeAddress nodeAddress
           nodeAddress = new TCPIPNodeAddress ( nodeIP, portNumber )
           NetChannelOutput toNode = NetChannel.one2net ( nodeAddress, 1, new CodeLoadingChannelFilter.FilterTX ( ) )
           // check version match
           if (nodeVersion  != VersionControl.versionTag) {
             println"Farmer is version ${VersionControl.versionTag}" +
-                "\nbut NodeRun $nodeIP is running version $nodeVersion; they must be the same!"
+                "\nbut WorkNode $nodeIP is running version $nodeVersion; they must be the same!"
             toNode.write(new Terminator())
             System.exit(-2)
           }

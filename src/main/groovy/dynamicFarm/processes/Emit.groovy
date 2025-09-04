@@ -1,6 +1,7 @@
 package dynamicFarm.processes
 
-import dynamicFarm.records.EmitInterface
+
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.SourceDataInterface
 import dynamicFarm.records.Terminator
 import dynamicFarm.records.ExtractParameters
@@ -50,17 +51,17 @@ class Emit implements CSProcess{
     Object emitClass = classDef.getDeclaredConstructor(cArg).newInstance(parameterValues)
     Object ec
     if (sourceData  == null)
-      ec = (emitClass as EmitInterface).create(null)
+      ec = (emitClass as DataInterface).create(null)
     else
-      ec = (emitClass as EmitInterface).create((sourceData).getSourceData())
+      ec = (emitClass as DataInterface).create((sourceData).getSourceData())
 //    println "Emit has initially created $ec"
     while (ec != null) {
       toSW.write(ec)
 //      println "Emit has written $ec"
       if (sourceData  == null)
-        ec = (emitClass as EmitInterface).create(null)
+        ec = (emitClass as DataInterface).create(null)
       else
-        ec =  ec = (emitClass as EmitInterface).create((sourceData).getSourceData())
+        ec =  ec = (emitClass as DataInterface).create((sourceData).getSourceData())
 //      println "Emit has created $ec"
     } //while
     terminating = true

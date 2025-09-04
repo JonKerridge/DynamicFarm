@@ -1,21 +1,18 @@
 package dynamicFarm.processes
 
-import dynamicFarm.records.EmitInterface
-import dynamicFarm.records.RequestWork
+
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.Terminator
-import groovy_jcsp.ALT
 import jcsp.lang.CSProcess
 import jcsp.lang.ChannelInput
 import jcsp.lang.ChannelOutput
-import jcsp.net2.NetChannel
-import jcsp.net2.NetChannelLocation
 import jcsp.net2.NetChannelOutput
 
 class SendWork implements CSProcess{
   ChannelInput fromFM, fromE, fromRM
   ChannelOutput toRM
   boolean running
-  EmitInterface buffer
+  DataInterface buffer
   // shared with FarmManager
   Map<String, NetChannelOutput> nodeAddressMap
 
@@ -38,7 +35,7 @@ class SendWork implements CSProcess{
 //            println "SW: awaiting response from RM"
             String nodeIP = fromRM.read()
 //            println "SW: receiving response from RM - $nodeIP"
-            (nodeAddressMap.get(nodeIP) as NetChannelOutput).write(emitData as EmitInterface)
+            (nodeAddressMap.get(nodeIP) as NetChannelOutput).write(emitData as DataInterface)
 //            println "SendWork has received $emitData from Emit and sent it to RB in $nodeIP"
           }
     } // running

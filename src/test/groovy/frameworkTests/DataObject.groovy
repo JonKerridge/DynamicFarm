@@ -1,21 +1,21 @@
 package frameworkTests
 
-import dynamicFarm.records.EmitInterface
-import dynamicFarm.records.SourceDataInterface
+
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.WorkDataInterface
 
-class EmitObject implements EmitInterface<EmitObject>{
+class DataObject implements DataInterface<DataObject> {
   int value
   int initialValue, finalValue
 
   // values ranging from (initialValue + 1) to finalValue will be toSW
 
-  EmitObject(List params){
+  DataObject(List params){
     initialValue = params[0] as int
     finalValue = params[1] as int
   }
 
-  EmitObject(int value){
+  DataObject(int value){
     this.value = value
     this.initialValue = 0
     this.finalValue = 0
@@ -37,11 +37,11 @@ class EmitObject implements EmitInterface<EmitObject>{
   }
 
   @Override
-  EmitObject create(Object sourceData) {
+  DataObject create(Object sourceData) {
     initialValue++
     if (initialValue <= finalValue) {
 //      println "\t\t\t\t\t\tcreating new object with $initialValue"
-      return new EmitObject(initialValue)
+      return new DataObject(initialValue)
     }
     else
       return null

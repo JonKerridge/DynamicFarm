@@ -1,6 +1,7 @@
 package dynamicFarm.processes
 
-import dynamicFarm.records.EmitInterface
+
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.Terminator
 import dynamicFarm.records.WorkDataInterface
 import dynamicFarm.records.ExtractParameters
@@ -25,7 +26,10 @@ class Worker implements CSProcess{
   void run() {
     boolean running
 //    println "Worker [$nodeIP:$workerIndex] running using $workParam"
-    List parameterValues = ExtractParameters.extractParams(workParam[0] as List, workParam[1] as List)
+    List parameterValues
+    parameterValues = []
+    if (workParam != null)
+      parameterValues = ExtractParameters.extractParams(workParam[0] as List, workParam[1] as List)
 //    println "Worker [$nodeIP:$workerIndex] running using parameters: $parameterValues"
     running = true
     while (running){
@@ -37,7 +41,7 @@ class Worker implements CSProcess{
       if (object instanceof Terminator)
         running = false
       else {
-        (object as EmitInterface).&"$methodName"(workData, parameterValues)
+        (object as DataInterface).&"$methodName"(workData, parameterValues)
         toWriteBuffer.write(object)
 //        println "Worker [$nodeIP:$workerIndex] sent toSW $object to WB"
       }

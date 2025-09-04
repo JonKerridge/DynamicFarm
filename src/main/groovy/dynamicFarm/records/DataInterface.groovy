@@ -1,6 +1,6 @@
 package dynamicFarm.records
 
-interface EmitInterface <T> extends Serializable{
+interface DataInterface<T> extends Serializable{
 
   /**
    * create() is used to generate a new instance of data objects in the Emit process,

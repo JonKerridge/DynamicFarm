@@ -29,7 +29,7 @@ import oshi.hardware.HardwareAbstractionLayer
  * The host node will complete all the interaction phases with one node
  * BEFORE attempting to initiate another worker node
  */
-class NodeRun {
+class WorkNode {
 
   String hostIP, localIP
   String version = VersionControl.versionTag
@@ -37,21 +37,13 @@ class NodeRun {
   int workers
   boolean verbose
 
-  //initialisation channels
-  NetChannelOutput registerNode
-  NetChannelInput goSignal
-
-  //communication channels
-  NetAltingChannelInput objectInput
-  NetChannelOutput readyToRead, outputToResults
-
 /**
  * Invoke a node
  * @param hostIP the IP address of the host
  * @param workers the number of worker processes in this node, if zero
  * the number of available processors (cores) will be determined dynamically
  */
-  NodeRun(String hostIP, int workers){
+  WorkNode(String hostIP, int workers){
     this.hostIP = hostIP
     this.localIP = null
     this.workers = workers
@@ -65,7 +57,7 @@ class NodeRun {
  * the number of available processors (cores) will be determined dynamically
  * @param verbose defaults to false but when true causes debug toSW
  */
-  NodeRun(String hostIP, int workers, boolean verbose){
+  WorkNode(String hostIP, int workers, boolean verbose){
     this.hostIP = hostIP
     this.localIP = null
     this.workers = workers
@@ -78,7 +70,7 @@ class NodeRun {
    * @param localIP the Ip address of the node to be created
    * @param workers the number of worker processes in this node, workers must be non-zero
    */
-  NodeRun(String hostIP, int workers, String localIP){
+  WorkNode(String hostIP, int workers, String localIP){
     this.hostIP = hostIP
     this.localIP = localIP
     this.workers = workers
@@ -92,7 +84,7 @@ class NodeRun {
    * @param workers the number of worker processes in this node, workers must be non-zero
    * @param verbose defaults to false but when true causes debug toSW
    */
-  NodeRun(String hostIP, int workers, String localIP, boolean verbose){
+  WorkNode(String hostIP, int workers, String localIP, boolean verbose){
     this.hostIP = hostIP
     this.localIP = localIP
     this.workers = workers
@@ -123,7 +115,7 @@ class NodeRun {
       workers = centralProcessor.getPhysicalProcessorCount() - 1
       // allocate available cores less 1 for the Read and Write Buffer processes to share
     }
-    println "NodeRun $nodeIP has started with host $hostIP" +
+    println "WorkNode $nodeIP has started with host $hostIP" +
         " on port $portNumber using version $version and $workers worker processes"
     NetAltingChannelInput fromFarmer = NetChannel.numberedNet2One(1, new CodeLoadingChannelFilter.FilterRX())
     TCPIPNodeAddress hostAddress = new TCPIPNodeAddress(hostIP, portNumber)
@@ -137,7 +129,7 @@ class NodeRun {
       println "Node started after the system is already terminating - $e"
       System.exit((-1))
     }
-    if (verbose) println "NodeRun $nodeIP has toFarmer channel ${toFarmer.getLocation()}" +
+    if (verbose) println "WorkNode $nodeIP has toFarmer channel ${toFarmer.getLocation()}" +
         "\n fromFarmer channel ${fromFarmer.getLocation()}"
     toFarmer.write(new InitialMessage(nodeIP: nodeIP, versionTag: version))
     // now get class definitions from Farmer or terminate if version mismatch
@@ -164,10 +156,10 @@ class NodeRun {
       System.exit((-1))
     }
     if (verbose) {
-      println "NodeRun getWork channel: ${getWork.getLocation()}"
-      println "NodeRun requestWork channel: ${requestWork.getLocation()}"
-      println "NodeRun writeResults channel: ${writeResults.getLocation()}"
-      println "NodeRun $nodeIP has completed net channel creation"
+      println "WorkNode getWork channel: ${getWork.getLocation()}"
+      println "WorkNode requestWork channel: ${requestWork.getLocation()}"
+      println "WorkNode writeResults channel: ${writeResults.getLocation()}"
+      println "WorkNode $nodeIP has completed net channel creation"
     }
 
 // nodeLoader can now read in the structure object unless some preAllocated nodes have not been started
@@ -182,7 +174,7 @@ class NodeRun {
 
     structure = (dataFromFarmer as List<ParseRecord>)
     if (verbose) structure.each {println "$it"}
-    if (verbose) println "NodeRun $nodeIP has completed initial interaction and class loading"
+    if (verbose) println "WorkNode $nodeIP has completed initial interaction and class loading"
     //load any work data required
     WorkDataInterface workData
     workData = null
@@ -192,7 +184,7 @@ class NodeRun {
       Class[] cArg = new Class[1]
       cArg[0] = String.class
       workData = workDataClass.getDeclaredConstructor(cArg).newInstance(workDataFileName) as WorkDataInterface
-      println "NodeRun $nodeIP has loaded $workDataFileName as work data"
+      println "WorkNode $nodeIP has loaded $workDataFileName as work data"
     }
     else{
       if ( !((workDataFileName == null) && (workDataClass == null))){
@@ -202,9 +194,9 @@ class NodeRun {
             "\neither both must be null or both must have values"
         System.exit(-3)
       }
-      println "NodeRun $nodeIP has not loaded any local data"
+      println "WorkNode $nodeIP has not loaded any local data"
     }
-    if (verbose) println "NodeRun $nodeIP is creating node processes"
+    if (verbose) println "WorkNode $nodeIP is creating node processes"
     // create internal channels
     Any2OneChannel workToReadBuffer = Channel.any2one()
     Any2OneChannel workToWriteBuffer = Channel.any2one()
@@ -239,7 +231,7 @@ class NodeRun {
     if (message == "START") {
       println"Node $nodeIP starting"
       new PAR(nodeProcesses).run()
-      println "NodeRun $nodeIP total elapsed time = ${System.currentTimeMillis() - startTime} milliseconds"
+      println "WorkNode $nodeIP total elapsed time = ${System.currentTimeMillis() - startTime} milliseconds"
     }
     else {
       println "$message - Node terminating as system termination already started"

@@ -9,7 +9,7 @@ import dynamicFarm.run.Farmer
 
 class T1Farmer {
   static void main(String[] args) {
-    String structure =  "D:/IJGradle/DynamicFarm/src/test/groovy/areaPoiTests/testFiles/Test1"
+    String structure =  "./src/test/groovy/areaPoiTests/testFiles/Test1"
     Class dataClass = AreaData
     Class sourceDataClass = AreaLocales
     Class workDataClass = PoILocales

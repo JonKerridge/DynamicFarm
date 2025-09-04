@@ -15,7 +15,7 @@ package dynamicFarm.records
  *   work -n 1 -w 4 -m distance -p double!3.0 -f ./data/pois250.loc
  * <p>
  * A single WorkerNode is specified with 4 Worker processes.  The method called distance is
- * obtained from an object that implements the EmitInterface and will be passed a single
+ * obtained from an object that implements the DataInterface and will be passed a single
  * parameter, the double value 3.0.  The file ./data/pois250.loc will be passed to the constructor
  * for the object implementing WorkDataInterface.  The shared data will be passed as the first parameter
  * to any method name referred to in a work specification.  Each Worker process will have access to
@@ -41,7 +41,7 @@ interface WorkDataInterface<T> {
      * in filterValues to ignore any work data items that do not satisfy the
      * filter.
      * The filterValue(s) will be obtained from the object implementing the
-     * EmitInterface using the getFilterValues method.
+     * DataInterface using the getFilterValues method.
      * If the work data does not need filtering then filterValues should be null.
      *
      * @param index the subscript in the Work Data, from where the search will start

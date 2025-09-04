@@ -1,8 +1,8 @@
 package areaPoiTests.locality
 
-import dynamicFarm.records.CollectInterface
+import dynamicFarm.records.ResultInterface
 
-class AreaPoICollect implements CollectInterface<AreaData> {
+class AreaPoICollect implements ResultInterface<AreaData> {
 
   List <AreaData> allAreas
   List <Location> accessedPoIs

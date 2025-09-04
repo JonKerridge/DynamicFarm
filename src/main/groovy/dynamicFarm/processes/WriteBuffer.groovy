@@ -1,6 +1,6 @@
 package dynamicFarm.processes
 
-import dynamicFarm.records.EmitInterface
+import dynamicFarm.records.DataInterface
 import dynamicFarm.records.Terminator
 import jcsp.lang.CSProcess
 import jcsp.lang.ChannelInput
@@ -26,7 +26,7 @@ class WriteBuffer implements CSProcess {
 //            println "WB [$nodeIP]: terminating $terminated and $running"
       }
       else {
-        outputToResults.write(object as EmitInterface)
+        outputToResults.write(object as DataInterface)
 //        println "WB [$nodeIP]: has written $object to ReadResults"
       }
 

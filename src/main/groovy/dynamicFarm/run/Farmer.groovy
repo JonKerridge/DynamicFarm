@@ -9,7 +9,6 @@ import dynamicFarm.processes.SendWork
 import dynamicFarm.records.ClassDefinitions
 import dynamicFarm.records.ParseRecord
 import dynamicFarm.records.VersionControl
-import dynamicFarm.records.ExtractVersion
 import groovy_jcsp.PAR
 import jcsp.lang.CSProcess
 import jcsp.lang.Channel
