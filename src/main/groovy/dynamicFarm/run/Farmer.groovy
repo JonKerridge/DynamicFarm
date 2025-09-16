@@ -10,6 +10,7 @@ import dynamicFarm.processes.SharedProperties
 import dynamicFarm.records.ClassDefinitions
 import dynamicFarm.records.ParseRecord
 import dynamicFarm.records.VersionControl
+import dynamicFarm.records.ExtractVersion
 import groovy_jcsp.PAR
 import jcsp.lang.CSProcess
 import jcsp.lang.Channel
@@ -81,11 +82,11 @@ class Farmer {
       System.exit(-2)
     }
     // only tested ONCE the library is available!!
-//    if (!(ExtractVersion.extractVersion(parsedVersion))){
-//      println "The library dynamicFramework version $parsedVersion needs to be downloaded\n" +
-//          "Please modify the gradle.build file accordingly"
-//      System.exit(-2)
-//    }
+    if (!(ExtractVersion.extractVersion(parsedVersion))){
+      println "The library dynamicFramework version $parsedVersion needs to be downloaded\n" +
+          "Please modify the gradle.build file accordingly"
+      System.exit(-2)
+    }
 
     ClassDefinitions classDefs = new ClassDefinitions(
         dataClass: dataClass,
