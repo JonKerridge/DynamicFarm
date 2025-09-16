@@ -9,12 +9,10 @@ import jcsp.lang.ChannelOutput
 import jcsp.net2.NetChannelOutput
 
 class SendWork implements CSProcess{
-  ChannelInput fromFM, fromE, fromRM
-  ChannelOutput toRM
+  ChannelInput fromE, fromRM, fromSP
+  ChannelOutput toRM, toSP
   boolean running
-  DataInterface buffer
-  // shared with FarmManager
-  Map<String, NetChannelOutput> nodeAddressMap
+  List <NetChannelOutput> chanList =[]
 
   /**
    * This defines the actions of the process.*/
@@ -27,6 +25,7 @@ class SendWork implements CSProcess{
 //          println "SendWork receiving $emitData from emit"
           if (emitData instanceof Terminator) {
             running = false
+            toRM.write("STOP")
 //            println "SendWork has received termination from Emit"
           }
           else {
@@ -35,15 +34,16 @@ class SendWork implements CSProcess{
 //            println "SW: awaiting response from RM"
             String nodeIP = fromRM.read()
 //            println "SW: receiving response from RM - $nodeIP"
-            (nodeAddressMap.get(nodeIP) as NetChannelOutput).write(emitData as DataInterface)
-//            println "SendWork has received $emitData from Emit and sent it to RB in $nodeIP"
+            toSP.write(nodeIP)
+            NetChannelOutput outChan = fromSP.read() as NetChannelOutput
+            outChan.write(emitData as DataInterface)
+            if (!chanList.contains(outChan)) chanList << outChan
           }
     } // running
-    nodeAddressMap.each{entry->
-      String nodeIP = entry.key
-//      println "SendWork processing $nodeIP when terminating"
-      (nodeAddressMap.get(nodeIP) as NetChannelOutput).write(new Terminator(nodeIP: "emit"))
-     }
+    // now terminate the nodes
+    chanList.each { chan ->
+      chan.write(new Terminator(nodeIP: "SendWork"))
+    }
 //    println "SendWork has terminated"
   } // run()
 }

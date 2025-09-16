@@ -11,11 +11,10 @@ import jcsp.lang.ChannelOutput
 
 class Emit implements CSProcess{
   ChannelInput fromFM
-  ChannelOutput toSW
+  ChannelOutput toSW, toSP
   Class classDef, sourceDef
   List emitParams
   String sourceDataFileName
-  boolean terminating
 
   /**
    * This defines the actions of the process.*/
@@ -61,10 +60,11 @@ class Emit implements CSProcess{
       if (sourceData  == null)
         ec = (emitClass as DataInterface).create(null)
       else
-        ec =  ec = (emitClass as DataInterface).create((sourceData).getSourceData())
+        ec = (emitClass as DataInterface).create((sourceData).getSourceData())
 //      println "Emit has created $ec"
     } //while
-    terminating = true
+    // set terminating in SP
+    toSP.write(true as boolean)
     toSW.write(new Terminator(
         nodeIP: "EMIT end" )
     )

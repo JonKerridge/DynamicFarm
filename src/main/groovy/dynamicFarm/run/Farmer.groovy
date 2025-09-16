@@ -6,6 +6,7 @@ import dynamicFarm.processes.FarmManager
 import dynamicFarm.processes.ReadResults
 import dynamicFarm.processes.RequestManager
 import dynamicFarm.processes.SendWork
+import dynamicFarm.processes.SharedProperties
 import dynamicFarm.records.ClassDefinitions
 import dynamicFarm.records.ParseRecord
 import dynamicFarm.records.VersionControl
@@ -15,7 +16,6 @@ import jcsp.lang.Channel
 import jcsp.lang.One2OneChannel
 import jcsp.net2.NetAltingChannelInput
 import jcsp.net2.NetChannel
-import jcsp.net2.NetChannelOutput
 import jcsp.net2.Node
 import jcsp.net2.tcpip.TCPIPNodeAddress
 
@@ -65,19 +65,6 @@ class Farmer {
     this.structureFileName = fileBaseName + ".dfstruct"
   }
 
-  // Shared properties between various of the processes
-  boolean terminating = false
-  // used to avoid problems initiating a new node while termination in progress
-  // it is shared between Emit (writes) and FarmManager(reads)
-  Map<String, NetChannelOutput> NodeIPAddressMap = [:]
-  // contains the value of a Net Channel Output that is used to write emitted objects from
-  //SendWork to a ReadBuffer in a Node.  The NodeIP acts as the key.
-  // The map is updated in FarmManager and read from in SendWork
-  int terminatedNodesCount = 0
-  // used to count the number of nodes that have terminated
-  // incremented in ReadResults and accessed in Collect and RequestManager
-
-
   void invoke() {
     println "Farm initiated using software version ${VersionControl.versionTag}"
     long startTime = System.currentTimeMillis()
@@ -93,7 +80,7 @@ class Farmer {
           "Software is version ${VersionControl.versionTag}"
       System.exit(-2)
     }
-    // only tested once the library is available!!
+    // only tested ONCE the library is available!!
 //    if (!(ExtractVersion.extractVersion(parsedVersion))){
 //      println "The library dynamicFramework version $parsedVersion needs to be downloaded\n" +
 //          "Please modify the gradle.build file accordingly"
@@ -125,41 +112,58 @@ class Farmer {
     if (verbose) println "Required Net Channels have been created"
 
     List < CSProcess> processes = []
-    One2OneChannel FM2E = Channel.one2one()
-    One2OneChannel FM2SW = Channel.one2one()
-    One2OneChannel FM2RR = Channel.one2one()
-    One2OneChannel C2FM = Channel.one2one()
-    One2OneChannel E2SW = Channel.one2one()
-    One2OneChannel RR2C = Channel.one2one()
+    One2OneChannel FM2E  = Channel.one2one()
+    One2OneChannel C2FM  = Channel.one2one()
+    One2OneChannel E2SW  = Channel.one2one()
+    One2OneChannel RR2C  = Channel.one2one()
     One2OneChannel SW2RM = Channel.one2one()
     One2OneChannel RM2SW = Channel.one2one()
+    One2OneChannel E2SP  = Channel.one2one()
+    One2OneChannel FM2SP = Channel.one2one()
+    One2OneChannel SP2FM = Channel.one2one()
+    One2OneChannel SW2SP = Channel.one2one()
+    One2OneChannel SP2SW = Channel.one2one()
+    One2OneChannel C2SP  = Channel.one2one()
+    One2OneChannel RR2SP = Channel.one2one()
+    One2OneChannel SP2RR = Channel.one2one()
 
+    processes << new SharedProperties(
+        fromE: E2SP.in(),
+        fromFM: FM2SP.in(),
+        fromSW: SW2SP.in(),
+        fromRR: RR2SP.in(),
+        fromC: C2SP.in(),
+        toFM: SP2FM.out(),
+        toSW: SP2SW.out(),
+        toRR: SP2RR.out() )
     processes << new Emit(
         fromFM: FM2E.in(),
         toSW: E2SW.out(),
+        toSP: E2SP.out(),
         classDef: dataClass,
         sourceDef: sourceDataClass,
         emitParams: structure[1].dataParameters,
-        terminating: terminating,
         sourceDataFileName: structure[1].sourceDataFileName )
     processes << new SendWork(
         fromE: E2SW.in(),
         toRM: SW2RM.out(),
         fromRM: RM2SW.in(),
-        nodeAddressMap: NodeIPAddressMap)
+        toSP: SW2SP.out(),
+        fromSP: SP2SW.in())
     processes << new RequestManager(
         fromRB: RBbynetRM,
         fromSW: SW2RM.in(),
-        toSW: RM2SW.out(),
-        nodeAddressMap: NodeIPAddressMap)
+        toSW: RM2SW.out())
     processes << new ReadResults(
         fromWB: WBbynetRR,
         toC: RR2C.out(),
-        terminatedNodesCount: terminatedNodesCount,
-        nodeAddressMap: NodeIPAddressMap)
+        fromSP: SP2RR.in(),
+        toSP: RR2SP.out()
+    )
     processes << new Collect(
         fromRR: RR2C.in(),
         toFM: C2FM.out(),
+        toSP: C2SP.out(),
         resultClass: resultClass,
         classParameters: structure[3].resultParameters,
         collectParameters: structure[3].collectParameters,
@@ -170,17 +174,13 @@ class Farmer {
         fromNodes: fromNodes,
         toE: FM2E.out(),
         fromC: C2FM.in(),
+        toSP: FM2SP.out(),
+        fromSP: SP2FM.in(),
         nature: nature,
-        terminating: terminating,
         verbose: verbose,
-        nodeAddressMap: NodeIPAddressMap
     )
-//    println "Farmer is starting processes"
+    println "Farmer is starting processes"
     new PAR(processes).run()
     println "Farmer total elapsed time is ${System.currentTimeMillis() - startTime}"
-  }
-
-
-
-
+  } // invoke
 }

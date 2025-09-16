@@ -16,15 +16,14 @@ import jcsp.net2.mobile.CodeLoadingChannelFilter
 import jcsp.net2.tcpip.TCPIPNodeAddress
 
 class FarmManager implements CSProcess{
-  ChannelOutput toE
-  ChannelInput fromC
+  ChannelOutput toE, toSP
+  ChannelInput fromC, fromSP
   NetChannelInput fromNodes
   List <ParseRecord> structure
   ClassDefinitions classDefinitions
   String nature
-  boolean verbose, terminating
+  boolean verbose
   int portNumber = 56789 //port number used in TCPIP communications
-  Map<String, NetChannelOutput> nodeAddressMap
   long firstNodeTime
 
   /**
@@ -33,7 +32,6 @@ class FarmManager implements CSProcess{
   void run() {
     long startTime = System.currentTimeMillis()
     ALT controlAlt = new ALT([fromNodes, fromC])
-//    println " Farmer waiting for nodes to join farm active = ${nodeAddressMap.size()}"
     // now wait for a node to communicate
     boolean running, started
     (running,started) = [true, false]
@@ -45,7 +43,7 @@ class FarmManager implements CSProcess{
           InitialMessage startMessage = fromNodes.read ( ) as InitialMessage
           String nodeIP = startMessage.nodeIP
           String nodeVersion = startMessage.versionTag
-          if (verbose) println "FarmManager: WorkNode $nodeIP has joined the farm initially active = ${nodeAddressMap.size()}"
+          if (verbose) println "FarmManager: WorkNode $nodeIP has joined the farm "
           TCPIPNodeAddress nodeAddress
           nodeAddress = new TCPIPNodeAddress ( nodeIP, portNumber )
           NetChannelOutput toNode = NetChannel.one2net ( nodeAddress, 1, new CodeLoadingChannelFilter.FilterTX ( ) )
@@ -64,19 +62,19 @@ class FarmManager implements CSProcess{
           // now put net output channel  information into the Map
           // create the node's net output channel to read buffer
           NetChannelOutput toNodeReadBuffer = NetChannel.one2net ( nodeAddress, 2 )
-          if (verbose) println "FarmManager: updated nodeAddressMap with net output channel ${toNodeReadBuffer.getLocation()} to node $nodeIP"
+          if (verbose) println "FarmManager: updated active Nodes with net output channel ${toNodeReadBuffer.getLocation()} to node $nodeIP"
 
           // set up the new node by sending structure object to node
           toNode.write(structure)
-          if (terminating){
+          toSP.write(["T"])   //determine whether system is already terminating
+          if (fromSP.read() as boolean){
             // node is being initialised after termination in the other nodes commenced
             toNode.write("ABORT")
           }
           else{
             // can start the node
-            nodeAddressMap.put(nodeIP, toNodeReadBuffer)
+            toSP.write(["U", nodeIP, toNodeReadBuffer])
             toNode.write("START")
-//            println "FM: active nodes now map contains ${nodeAddressMap.size()}"
           }
           // node will now start its internal processes by signalling Emit
           if ( !started ) {  // on first iteration set Emit process running

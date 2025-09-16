@@ -32,5 +32,6 @@ class WriteBuffer implements CSProcess {
 
     } // running
     outputToResults.write(new Terminator(nodeIP: nodeIP))
+//    println "WriteBuffer in $nodeIP has terminated"
   } // run
 }

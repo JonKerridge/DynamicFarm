@@ -2,7 +2,6 @@ package dynamicFarm.processes
 
 
 import dynamicFarm.records.Terminator
-import groovy_jcsp.ALT
 import jcsp.lang.CSProcess
 import jcsp.lang.ChannelInput
 import jcsp.lang.ChannelOutput
@@ -12,8 +11,9 @@ class ReadResults implements CSProcess{
   NetAltingChannelInput fromWB
   ChannelOutput toC
   boolean running
-  int terminatedNodesCount  // shared with FarmManager
-  Map nodeAddressMap
+  ChannelInput fromSP
+  ChannelOutput toSP
+
 
   /**
    * This defines the actions of the process.*/
@@ -27,12 +27,8 @@ class ReadResults implements CSProcess{
             toC.write(inputRecord)
           }
           else {
-            terminatedNodesCount = terminatedNodesCount + 1
-//            println "RR: terminated = $terminatedNodesCount; map contains ${nodeAddressMap.size()}"
-            if (nodeAddressMap.size() == terminatedNodesCount) {
-              // all the nodes have terminated
-              running = false
-            }
+            toSP.write(1)
+            running = (!(fromSP.read() as boolean))
           }
     } // while running
     toC.write(new Terminator(nodeIP: "ReadResults"))

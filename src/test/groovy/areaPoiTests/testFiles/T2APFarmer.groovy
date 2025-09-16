@@ -7,7 +7,7 @@ import areaPoiTests.locality.PoILocales
 import dynamicFarm.run.Farmer
 
 
-class T2Farmer {
+class T2APFarmer {
   static void main(String[] args) {
     String structure =  "D:/IJGradle/DynamicFarm/src/test/groovy/areaPoiTests/testFiles/Test2"
     Class dataClass = AreaData

@@ -8,6 +8,6 @@ class T1Farmer {
     Class dataClass = DataObject
     Class resultClass = ResultObject
     new Farmer( structure, dataClass, null, null,
-        resultClass,"Local", true ).invoke()
+        resultClass,"Local", false ).invoke()
   }
 }

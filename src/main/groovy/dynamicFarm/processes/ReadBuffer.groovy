@@ -52,10 +52,8 @@ class ReadBuffer implements CSProcess{
             writeTo = (writeTo + 1) % nInternals
             entries = entries + 1
           } else {  //stop the running loop Terminator read
-            // have to inform RequestManager as well
-            readyToRead.write(new Terminator(nodeIP: nodeIP))
             running = false
-//            println "RB[$nodeIP]: terminating $running"
+//            println "RB[$nodeIP]: terminating "
           }
           break
         case  1:  //request from one of the internal processes
@@ -84,7 +82,7 @@ class ReadBuffer implements CSProcess{
     // local buffer is now empty so terminate the internal processes
     for ( i in 0 ..< nInternals){
       int internalIndex = fromInternalProcesses.read() as int
-//      println "Read Buffer[$nodeIP]: terminating internal $internalIndex"
+      println "Read Buffer[$nodeIP]: terminating internal $internalIndex"
       toInternalProcesses[internalIndex].write(new Terminator())
     }
   } // run()

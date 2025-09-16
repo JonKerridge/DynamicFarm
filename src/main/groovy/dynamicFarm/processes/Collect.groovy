@@ -10,7 +10,7 @@ import jcsp.lang.ChannelOutput
 
 class Collect implements CSProcess{
   ChannelInput fromRR  // connects to ReadResults
-  ChannelOutput toFM   // to receive terminator from Collect to FM
+  ChannelOutput toFM, toSP   // to send terminator from Collect to FM and SP
   // class associated with the collector that defines the collate and finalise methods
   Class <?> resultClass
   List <String> classParameters
@@ -33,7 +33,7 @@ class Collect implements CSProcess{
       classParameterValues = ExtractParameters.extractParams(classParameters[0] as List, classParameters[1] as List)
     }
     def collectInstance = resultClass.getDeclaredConstructor(cArg).newInstance(classParameterValues)
-    // get parameter valuse for Collate and finalise
+    // get parameter values for Collate and finalise
     if (collectParameters != null )
       collectParameterValues = ExtractParameters.extractParams(collectParameters[0] as List, collectParameters[1] as List)
     if (finaliseParameters != null )
@@ -53,7 +53,8 @@ class Collect implements CSProcess{
     } // running
     //call the finalise method if it exists and close the toSW stream
     (collectInstance as ResultInterface).finalise(finaliseParameterValues)
-    // send terminator to FarmManager
+    // send terminator to FarmManager and SP
+    toSP.write(1)
     toFM.write((new Terminator(nodeIP: "STOP")))
 //    println "Collect has terminated"
   }
